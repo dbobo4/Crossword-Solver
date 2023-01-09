@@ -3,6 +3,7 @@ import hu.dbobo4.util.FileHandler;
 import java.util.*;
 
 // The rules are:
+//              -the words to be found must not contain accent marks
 //              -we can use the same letter for a solution
 //              -the first solution from top to bottom and from left to right is a valid solution
 //              -we're trying to find the FIRST valid solution
