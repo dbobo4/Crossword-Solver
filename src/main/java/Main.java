@@ -12,7 +12,7 @@ import java.util.*;
 public class Main {
 
     private static final String DELIMITER = ",";
-    private static final String PATH_OF_SOURCE_FILE = "D:\\Masterfield\\Projects\\Excercieses\\Crossword\\src\\main\\java\\source\\ncore_feladat.txt";
+    private static final String PATH_OF_SOURCE_FILE = "D:\\Masterfield\\Projects\\Excercieses\\Crossword\\src\\main\\java\\source\\crossword_example.txt";
     private static final String[][] taskTable = FileHandler.getWordArray(PATH_OF_SOURCE_FILE, DELIMITER);
     private static final List<String> FOUND_WORDS = new ArrayList<>();
     private static final List<String> NOT_FOUND_WORDS = new ArrayList<>();
