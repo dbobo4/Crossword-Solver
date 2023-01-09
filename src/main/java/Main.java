@@ -7,7 +7,7 @@ import java.util.List;
 public class Main {
 
     private static final String DELIMITER = ",";
-    private static final String PATH_OF_SOURCE_FILE = "D:\\Masterfield\\Projects\\Excercieses\\NcoreTask\\src\\main\\java\\source\\ncore_feladat.txt";
+    private static final String PATH_OF_SOURCE_FILE = "D:\\Masterfield\\Projects\\Excercieses\\Crossword\\src\\main\\java\\source\\ncore_feladat.txt";
     private static final String[][] taskTable = FileHandler.getWordArray(PATH_OF_SOURCE_FILE, DELIMITER);
     private static final List<String> FOUND_WORDS = new ArrayList<>();
     private static final List<String> NOT_FOUND_WORDS = new ArrayList<>();
@@ -77,6 +77,7 @@ public class Main {
         printData(NOT_FOUND_WORDS);
         System.out.println();
 
+        System.out.println("Found coordinates: ");
         for (int[] coordinates : result) {
             System.out.println(Arrays.toString(coordinates));
         }
@@ -117,14 +118,6 @@ public class Main {
         }
     }
 
-    private static Orientation decideOrientation(int currentRow, int currentColumn, int preRow, int preColumn) {
-        if ((currentRow == preRow - 1) || (currentRow == preRow + 1)) {
-            return Orientation.HORIZONTAL;
-        } else if ((currentColumn == preColumn - 1) || (currentColumn == preColumn + 1)) {
-            return Orientation.VERTICAL;
-        } else return Orientation.DIAGONAL;
-    }
-
     private static List<int[]> getCoordinates(String word) {
         List<int[]> coordinateList = new ArrayList<>();
 
@@ -138,7 +131,7 @@ public class Main {
                     }
                     coordinateList.add(new int[]{i, j});
                     //it will find just ONE and the FIRST solution!
-                    if (getMatchedNeighbourCoordinates(i, j, i, j, word, 1, String.valueOf(word.charAt(0)), coordinateList)) {
+                    if (getMatchedNeighbourCoordinates(Orientation.NONE, Orientation.NONE, i, j, i, j, word, 1, String.valueOf(word.charAt(0)), coordinateList)) {
                         FOUND_WORDS.add(word);
                         return coordinateList;
                     }
@@ -150,8 +143,15 @@ public class Main {
         return new ArrayList<>();
     }
 
-    private static boolean getMatchedNeighbourCoordinates(int baseRow, int baseColumn, int x, int y, String word, int nextLetterPos, String currentWord, List<int[]> coordinateList) {
+    private static Orientation decideOrientation(int currentRow, int currentColumn, int preRow, int preColumn) {
+        if (currentColumn == preColumn) {
+            return Orientation.VERTICAL;
+        } else if (currentRow == preRow) {
+            return Orientation.HORIZONTAL;
+        } else return Orientation.DIAGONAL;
+    }
 
+    private static boolean getMatchedNeighbourCoordinates(Orientation mainOrientation, Orientation currentOrientation, int baseRow, int baseColumn, int x, int y, String word, int nextLetterPos, String currentWord, List<int[]> coordinateList) {
         if (currentWord.equalsIgnoreCase(word)) {
             return true;
         }
@@ -162,11 +162,15 @@ public class Main {
                 } else {
                     if (!((row == x) && (column == y))) {
                         if (taskTable[row][column].equalsIgnoreCase(String.valueOf(word.charAt(nextLetterPos)))) {
+                            if (nextLetterPos == 1){
+                                mainOrientation = decideOrientation(row, column, baseRow, baseColumn);
+                            }
                             if ((nextLetterPos > 1)) {
-                                if (isValidPosition(row, column, baseRow, baseColumn, coordinateList)) {
+                                currentOrientation = decideOrientation(row, column, baseRow, baseColumn);
+                                if (currentOrientation == mainOrientation) {
                                     coordinateList.add(new int[]{row, column});
                                     currentWord += word.charAt(nextLetterPos);
-                                    if (getMatchedNeighbourCoordinates(baseRow, baseColumn, row, column, word, ++nextLetterPos, currentWord, coordinateList)) {
+                                    if (getMatchedNeighbourCoordinates(mainOrientation, currentOrientation, baseRow, baseColumn, row, column, word, ++nextLetterPos, currentWord, coordinateList)) {
                                         return true;
                                     } else {
                                         currentWord = currentWord.substring(0, currentWord.length() - 1);
@@ -177,7 +181,7 @@ public class Main {
                             } else {
                                 coordinateList.add(new int[]{row, column});
                                 currentWord += word.charAt(nextLetterPos);
-                                if (getMatchedNeighbourCoordinates(baseRow, baseColumn, row, column, word, ++nextLetterPos, currentWord, coordinateList)) {
+                                if (getMatchedNeighbourCoordinates(mainOrientation, currentOrientation, baseRow, baseColumn, row, column, word, ++nextLetterPos, currentWord, coordinateList)) {
                                     return true;
                                 } else {
                                     currentWord = currentWord.substring(0, currentWord.length() - 1);
