@@ -41,9 +41,9 @@ public class FileHandler {
             case "í" -> "i";
             case "ó", "ö", "ő" -> "o";
             case "ú", "ü", "ű" -> "u";
-            default -> letter;
+            default -> letter.toUpperCase();
         };
-        return validLetter.toLowerCase();
+        return validLetter.toUpperCase();
     }
 
     public static int[] getTableParameters(String path, String delimiter) {

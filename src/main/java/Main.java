@@ -1,8 +1,13 @@
 import hu.dbobo4.util.FileHandler;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+
+// The rules are:
+//              -we can use the same letter for a solution
+//              -the first solution from top to bottom and from left to right is a valid solution
+//              -we're trying to find the FIRST valid solution
+//              -a mirrored version of a word is a valid solution
+//              -the solution line (horizontal, vertical, diagonal) can not be broken
 
 public class Main {
 
@@ -11,6 +16,7 @@ public class Main {
     private static final String[][] taskTable = FileHandler.getWordArray(PATH_OF_SOURCE_FILE, DELIMITER);
     private static final List<String> FOUND_WORDS = new ArrayList<>();
     private static final List<String> NOT_FOUND_WORDS = new ArrayList<>();
+    private static final HashMap<String, List<int[]>> FOUND_COORDINATES = new HashMap<>();
 
     public static void main(String[] args) {
 
@@ -44,6 +50,7 @@ public class Main {
         List<int[]> finalResult = new ArrayList<>();
         for (String word : keyWords) {
             List<int[]> result = getCoordinates(word);
+            FOUND_COORDINATES.put(word, result);
             finalResult.addAll(result);
         }
 
@@ -53,9 +60,8 @@ public class Main {
     }
 
     private static void printResult(List<int[]> result) {
-        changeCoordinatesToStars(result);
-
-
+        System.out.println("INITIAL TABLE");
+        System.out.println("----------------------------------------------------------------");
         for (int i = 0; i < taskTable.length; i++) {
             for (int j = 0; j < taskTable[0].length; j++) {
                 System.out.print(taskTable[i][j] + "\t");
@@ -64,22 +70,34 @@ public class Main {
             System.out.println();
         }
 
+        System.out.println("SOLUTION TABLE");
+        System.out.println("----------------------------------------------------------------");
+        System.out.println();
+        printResultTable(result);
         System.out.println();
 
-        printOnlyResultTable(result);
-
-        System.out.println();
-
-        System.out.println("found words: ");
+        System.out.println("Found words: " + FOUND_WORDS.size());
         printData(FOUND_WORDS);
         System.out.println();
-        System.out.println("not found words: ");
-        printData(NOT_FOUND_WORDS);
-        System.out.println();
+        if (NOT_FOUND_WORDS.isEmpty()) {
+            System.out.println("All words have been found!");
+            System.out.println();
+        } else {
+            System.out.println("Not found words: " + NOT_FOUND_WORDS.size());
+            printData(NOT_FOUND_WORDS);
+            System.out.println();
+        }
 
         System.out.println("Found coordinates: ");
-        for (int[] coordinates : result) {
-            System.out.println(Arrays.toString(coordinates));
+        for (Map.Entry<String, List<int[]>> entry : FOUND_COORDINATES.entrySet()) {
+            String key = entry.getKey();
+            List<int[]> value = entry.getValue();
+            int[][] coordinates = new int[value.size()][value.get(0).length];
+            for (int i = 0; i < coordinates.length; i++) {
+                coordinates[i] = value.get(i);
+            }
+
+            System.out.println(key + ": " + Arrays.deepToString(coordinates));
         }
 
 
@@ -91,14 +109,7 @@ public class Main {
         }
     }
 
-    private static void changeCoordinatesToStars(List<int[]> coordinates) {
-        for (int i = 0; i < coordinates.size(); i++) {
-            int[] currentCoordinate = coordinates.get(i);
-            taskTable[currentCoordinate[0]][currentCoordinate[1]] = taskTable[currentCoordinate[0]][currentCoordinate[1]].toUpperCase();
-        }
-    }
-
-    private static void printOnlyResultTable(List<int[]> result) {
+    private static void printResultTable(List<int[]> result) {
         String[][] resultTable = new String[taskTable.length][taskTable[0].length];
 
         for (String[] strings : resultTable) {
@@ -162,12 +173,12 @@ public class Main {
                 } else {
                     if (!((row == x) && (column == y))) {
                         if (taskTable[row][column].equalsIgnoreCase(String.valueOf(word.charAt(nextLetterPos)))) {
-                            if (nextLetterPos == 1){
+                            if (nextLetterPos == 1) {
                                 mainOrientation = decideOrientation(row, column, baseRow, baseColumn);
                             }
                             if ((nextLetterPos > 1)) {
                                 currentOrientation = decideOrientation(row, column, baseRow, baseColumn);
-                                if (currentOrientation == mainOrientation) {
+                                if ((currentOrientation == mainOrientation) && isValidPosition(row, column, baseRow, baseColumn, coordinateList)) {
                                     coordinateList.add(new int[]{row, column});
                                     currentWord += word.charAt(nextLetterPos);
                                     if (getMatchedNeighbourCoordinates(mainOrientation, currentOrientation, baseRow, baseColumn, row, column, word, ++nextLetterPos, currentWord, coordinateList)) {
@@ -209,25 +220,6 @@ public class Main {
         }
         return false;
     }
-
-//    private static void writeTable(int row, int column) {
-//        for (int i = 0; i < taskTable.length; i++) {
-//            for (int j = 0; j < taskTable[0].length; j++) {
-//                if ((i == row) && (j == column)) {
-//                    System.out.print("*");
-//                } else {
-//                    System.out.print(taskTable[i][j]);
-//                }
-//            }
-//            System.out.println();
-//        }
-//        System.out.println();
-//        try {
-//            Thread.sleep(0);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//    }
 }
 
 
