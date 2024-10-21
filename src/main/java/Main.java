@@ -1,5 +1,5 @@
 import hu.dbobo4.util.FileHandler;
-
+import java.io.IOException;
 import java.util.*;
 
 // The rules are:
@@ -13,7 +13,9 @@ import java.util.*;
 public class Main {
 
     private static final String DELIMITER = ",";
-    private static final String PATH_OF_SOURCE_FILE = "src/main/java/source/crossword_example.txt";
+    private static final String PATH_OF_SOURCE_FILE = "src/main/java/source/crossword.txt";
+
+    private static final String PATH_OF_KEYWORDS = "src/main/java/source/wordsToBeFound.txt";
     private static final String[][] taskTable = FileHandler.getWordArray(PATH_OF_SOURCE_FILE, DELIMITER);
     private static final List<String> FOUND_WORDS = new ArrayList<>();
     private static final List<String> NOT_FOUND_WORDS = new ArrayList<>();
@@ -21,32 +23,12 @@ public class Main {
 
     public static void main(String[] args) {
 
-        String[] keyWords = {
-                "etolaj",
-                "buzafinomliszt",
-                "kristalycukor",
-                "so",
-                "eleszto",
-                "viz",
-                "csirkecombfile",
-                "fuszerpaprika",
-                "oregano",
-                "feketebors",
-                "fokhagymapor",
-                "bazsalikom",
-                "kakukkfu",
-                "rozmaring",
-                "komeny",
-                "joghurt",
-                "citromle",
-                "kapor",
-                "paradicsom",
-                "kigyouborka",
-                "jegsalata",
-                "lilakaposzta",
-                "lilahagyma",
-                "fokhagyma"
-        };
+        String[] keyWords;
+        try {
+            keyWords = FileHandler.getKeywords(PATH_OF_KEYWORDS);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         List<int[]> finalResult = new ArrayList<>();
         for (String word : keyWords) {
@@ -57,77 +39,8 @@ public class Main {
 
         printResult(finalResult);
 
+        CrosswordGUI gui = new CrosswordGUI(taskTable, FOUND_COORDINATES, keyWords);
 
-    }
-
-    private static void printResult(List<int[]> result) {
-        System.out.println("INITIAL TABLE");
-        System.out.println("----------------------------------------------------------------");
-        for (int i = 0; i < taskTable.length; i++) {
-            for (int j = 0; j < taskTable[0].length; j++) {
-                System.out.print(taskTable[i][j] + "\t");
-            }
-            System.out.println();
-            System.out.println();
-        }
-
-        System.out.println("SOLUTION TABLE");
-        System.out.println("----------------------------------------------------------------");
-        System.out.println();
-        printResultTable(result);
-        System.out.println();
-
-        System.out.println("Found words: " + FOUND_WORDS.size());
-        printData(FOUND_WORDS);
-        System.out.println();
-        if (NOT_FOUND_WORDS.isEmpty()) {
-            System.out.println("All words have been found!");
-            System.out.println();
-        } else {
-            System.out.println("Not found words: " + NOT_FOUND_WORDS.size());
-            printData(NOT_FOUND_WORDS);
-            System.out.println();
-        }
-
-        System.out.println("Found coordinates: ");
-        for (Map.Entry<String, List<int[]>> entry : FOUND_COORDINATES.entrySet()) {
-            String key = entry.getKey();
-            List<int[]> value = entry.getValue();
-            int[][] coordinates = new int[value.size()][value.get(0).length];
-            for (int i = 0; i < coordinates.length; i++) {
-                coordinates[i] = value.get(i);
-            }
-
-            System.out.println(key + ": " + Arrays.deepToString(coordinates));
-        }
-
-
-    }
-
-    private static <T> void printData(List<T> data) {
-        for (T dataPiece : data) {
-            System.out.println(dataPiece);
-        }
-    }
-
-    private static void printResultTable(List<int[]> result) {
-        String[][] resultTable = new String[taskTable.length][taskTable[0].length];
-
-        for (String[] strings : resultTable) {
-            Arrays.fill(strings, " ");
-        }
-
-        for (int[] currentCoordinate : result) {
-            resultTable[currentCoordinate[0]][currentCoordinate[1]] = taskTable[currentCoordinate[0]][currentCoordinate[1]];
-        }
-
-        for (int i = 0; i < resultTable.length; i++) {
-            for (int j = 0; j < resultTable[0].length; j++) {
-                System.out.print(resultTable[i][j] + "\t");
-            }
-            System.out.println();
-            System.out.println();
-        }
     }
 
     private static List<int[]> getCoordinates(String word) {
@@ -220,6 +133,74 @@ public class Main {
             }
         }
         return false;
+    }
+
+    private static void printResult(List<int[]> result) {
+        System.out.println("INITIAL TABLE");
+        System.out.println("----------------------------------------------------------------");
+        for (int i = 0; i < taskTable.length; i++) {
+            for (int j = 0; j < taskTable[0].length; j++) {
+                System.out.print(taskTable[i][j] + "\t");
+            }
+            System.out.println();
+            System.out.println();
+        }
+
+        System.out.println("SOLUTION TABLE");
+        System.out.println("----------------------------------------------------------------");
+        System.out.println();
+        printResultTable(result);
+        System.out.println();
+
+        System.out.println("Found words: " + FOUND_WORDS.size());
+        printData(FOUND_WORDS);
+        System.out.println();
+        if (NOT_FOUND_WORDS.isEmpty()) {
+            System.out.println("All words have been found!");
+            System.out.println();
+        } else {
+            System.out.println("Not found words: " + NOT_FOUND_WORDS.size());
+            printData(NOT_FOUND_WORDS);
+            System.out.println();
+        }
+
+        System.out.println("Found coordinates: ");
+        for (Map.Entry<String, List<int[]>> entry : FOUND_COORDINATES.entrySet()) {
+            String key = entry.getKey();
+            List<int[]> value = entry.getValue();
+            int[][] coordinates = new int[value.size()][value.get(0).length];
+            for (int i = 0; i < coordinates.length; i++) {
+                coordinates[i] = value.get(i);
+            }
+
+            System.out.println(key + ": " + Arrays.deepToString(coordinates));
+        }
+    }
+
+    private static <T> void printData(List<T> data) {
+        for (T dataPiece : data) {
+            System.out.println(dataPiece);
+        }
+    }
+
+    private static void printResultTable(List<int[]> result) {
+        String[][] resultTable = new String[taskTable.length][taskTable[0].length];
+
+        for (String[] strings : resultTable) {
+            Arrays.fill(strings, " ");
+        }
+
+        for (int[] currentCoordinate : result) {
+            resultTable[currentCoordinate[0]][currentCoordinate[1]] = taskTable[currentCoordinate[0]][currentCoordinate[1]];
+        }
+
+        for (int i = 0; i < resultTable.length; i++) {
+            for (int j = 0; j < resultTable[0].length; j++) {
+                System.out.print(resultTable[i][j] + "\t");
+            }
+            System.out.println();
+            System.out.println();
+        }
     }
 }
 

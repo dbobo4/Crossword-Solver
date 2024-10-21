@@ -3,8 +3,17 @@ package hu.dbobo4.util;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.stream.Stream;
 
 public class FileHandler {
+
+    public static String[] getKeywords(String path) throws IOException {
+        try (Stream<String> lines = Files.lines(Path.of(path))) {
+            return lines.toArray(String[]::new);
+        }
+    }
 
     public static String[][] getWordArray(String path, String delimiter) {
         int[] tableParameters = getTableParameters(path, delimiter);
