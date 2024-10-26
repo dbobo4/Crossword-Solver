@@ -26,14 +26,14 @@ public class CrosswordGUI {
 
         // Center panel - Initial Table
         initialTable = new JTable(createTableModel(taskTable));
-        styleTable(initialTable, keywords);
+        styleTable(initialTable);
         JScrollPane initialScrollPane = new JScrollPane(initialTable);
         frame.add(initialScrollPane, BorderLayout.CENTER);
 
         // Right panel - Solution Table
         String[][] solutionArray = createSolutionArray(taskTable, foundCoordinates);
         solutionTable = new JTable(createTableModel(solutionArray));
-        styleTable(solutionTable, keywords);
+        styleTable(solutionTable);
         JScrollPane solutionScrollPane = new JScrollPane(solutionTable);
         solutionScrollPane.setPreferredSize(new Dimension(300, 600));
         frame.add(solutionScrollPane, BorderLayout.EAST);
@@ -49,8 +49,8 @@ public class CrosswordGUI {
         return new DefaultTableModel(data, columnNames);
     }
 
-    private void styleTable(JTable table, String[] keywords) {
-        table.setRowHeight(keywords.length);
+    private void styleTable(JTable table) {
+        table.setRowHeight(25);
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         for (int i = 0; i < table.getColumnCount(); i++) {
